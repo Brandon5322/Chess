@@ -50,9 +50,9 @@ abbr_dict = {
 }
 
 def get_piece_at(pos):
-    for p in board:
+    for p in board: # 遍歷
         if p[2] == pos:
-            return p
+            return p # p['rook', 'white', 'a1']
     return None
 
 #  4. 判斷某路徑是否中間有擋路（for rook, bishop, queen）
@@ -89,6 +89,39 @@ def is_valid_move(piece, start, end):
 
     if start == end:
         return False
+    # 兵：只能往前直走，不處理吃子或升變
+    if piece_type == "pawn":
+        direction = 1 if piece[1] == "white" else -1
+        if x1 == x2 and ((y2 - y1) == direction or
+            (y1 == (2 if piece[1] == "white" else 7) and (y2 - y1) == 2 * direction)):
+            return True
+        return False
+
+    # 馬：L 型
+    if piece_type == "knight":
+        return (dx, dy) in [(1, 2), (2, 1)]
+
+    # 車：橫直方向，需通過擋路檢查
+    if piece_type == "rook":
+        if dx == 0 or dy == 0:
+            return is_path_clear(start, end)
+        return False
+
+    # 象：斜線走法
+    if piece_type == "bishop":
+        if dx == dy:
+            return is_path_clear(start, end)
+        return False
+
+    # 后：橫直斜皆可
+    if piece_type == "queen":
+        if dx == dy or dx == 0 or dy == 0:
+            return is_path_clear(start, end)
+        return False
+
+    # 王：走一步
+    if piece_type == "king":
+        return max(dx, dy) == 1
 
     return False
 
